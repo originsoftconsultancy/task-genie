@@ -15,16 +15,7 @@ load_dotenv()
 
 logfire.configure()
 
-api_key = os.getenv("GEMINI_API_KEY")
 model = os.getenv("LLM_MODEL")
-
-# Configuration for the SmartScraperGraph
-graph_config = {
-    "llm": {
-        "api_key": api_key,
-        "model": "gemini-pro",
-    },
-}
 
 fetch_web_agent = Agent(
     model,
