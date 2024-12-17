@@ -1,5 +1,5 @@
 
-from app.agents.fetch_web_agent import *
+from app.agents.orchestrator_agent import *
 import asyncio
 import logfire
 
@@ -13,7 +13,7 @@ async def main():
     while (query != "bye"):
         query = input("User: ")
         if query != "bye":
-            result = await fetch_web_agent.run(query, deps=None)
+            result = await task_genie.run(query)
             content = result.data if hasattr(result, 'data') else str(result)
             print("Agent: " + content)
 
