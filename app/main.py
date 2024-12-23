@@ -1,4 +1,7 @@
 
+from playwright.sync_api import sync_playwright
+from bs4 import BeautifulSoup
+import json
 from app.agents.orchestrator_agent import *
 import asyncio
 import logfire

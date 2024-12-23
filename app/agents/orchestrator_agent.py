@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import os
 import logfire
 
-import agents.tools
+import app.agents._tools
 
 # Load environment variables
 load_dotenv()
@@ -24,6 +24,6 @@ task_genie = Agent(
     deps_type=str,
     result_type=str,
     tools=[
-        agents.tools.scrap_from_contents_tool
+        agents._tools.research_tool
     ]
 )

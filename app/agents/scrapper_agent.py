@@ -38,12 +38,12 @@ scrapper_agent = Agent(
     deps_type=str,
     result_type=str,
     system_prompt=(
-        'Use the tool `scrap_from_contents` to scrap json data from the web page given by url from the provided prompt. '
+        'Use the tool `scrap_from_contents` to scrap json data from the web page given by url from the provided prompt. The tool internally fetches the web page contents as well.'
     ),
 )
 
 
-@scrapper_agent.tool
+# @scrapper_agent.tool
 def scrap_from_contents(ctx: RunContext[str], url: str, prompt: str) -> str:
     """Scraps information as JSON from the file contents given by the url and a prompt"""
 
@@ -64,7 +64,7 @@ def scrap_from_contents(ctx: RunContext[str], url: str, prompt: str) -> str:
         logfire.info(f"SmartScraperGraph result: {result}")
 
         # see if the result is a dictionary and first element has value "NA"
-        if isinstance(result, dict) and list(result.values())[0] == "NA":
+        if isinstance(result, dict) and (list(result.values())[0] == "NA" or list(result.values())[0] == []):
             logfire.info("Call the tool `extract_detailed_information` with the url: " + url + " prompt: " +
                          prompt + " and the required boolean parameters to extract the detailed information.")
             return "Call the tool `extract_detailed_information` with the url: " + url + " prompt: " + prompt + " and the required boolean parameters to extract the detailed information."
@@ -95,7 +95,8 @@ def extract_detailed_information(ctx: RunContext[str],
                                  b_iframes: bool,
                                  b_forms: bool,
                                  b_divs: bool,
-                                 b_spans: bool
+                                 b_spans: bool,
+                                 b_only_text: bool
                                  ) -> str:
     """
         Pick required information from the html based on boolean parameters. The web page url is in the parameter `url`, prompt is in `prompt`, This tool will return a dictionary containing the following information:
@@ -115,13 +116,20 @@ def extract_detailed_information(ctx: RunContext[str],
         - Forms if b_forms parameter is True
         - Divs if b_divs parameter is True
         - Spans if b_spans parameter is True
+        - Use the b_only_text as True if you want to extract only the text from the html content
     """
+    #
+    logfire.info("Extracting detailed information from the web page")
+    logfire.info("Parameters: " + str(locals()))
 
     # Read the HTML content from the file
 
     html_content = fetch_web_content(ctx, url)
 
     soup = BeautifulSoup(html_content, 'html.parser')
+
+    if b_only_text:
+        return soup.get_text(strip=True)
 
     # Title
     title = soup.title.string if (soup.title and b_title) else None
@@ -220,5 +228,5 @@ def extract_detailed_information(ctx: RunContext[str],
         "spans": spans,
     }
 
-    # convert the dictionary to a string
-    return str(json)
+    final_json = str(json)
+    return final_json
