@@ -9,3 +9,4 @@ langchain-google-vertexai
 beautifulsoup4>=4.11.0
 lxml>=4.9.0
 html5lib>=1.1
+htmlmin

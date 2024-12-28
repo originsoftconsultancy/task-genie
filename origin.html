@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <meta name="description" content="Originsoft IT Consultancy Services">
+  <link href="assets/images/favicon/favicon.png" rel="icon">
+  <title>Originsoft IT Consultancy Services</title>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Barlow:400,500,600,700%7cRoboto:400,500,700&display=swap">
+  <link rel="stylesheet" href="assets/css/libraries.css" />
+  <link rel="stylesheet" href="assets/css/style.css?a=4" />
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+    integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.4.3/css/ol.css"
+    type="text/css">
+  <style>
+    body {
+      background-color: #f0f0f0;
+      /* Light grey background for contrast */
+      background-image: linear-gradient(#ccc 1px, transparent 1px),
+        linear-gradient(90deg, #ccc 1px, transparent 1px);
+      background-size: 20px 20px;
+      /* Size of the grid cells */
+      background-position: 0 0, 0 0;
+      /* Start position of the grid */
+    }
+
+    .grid-enhanced {
+      background-image: linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+      background-size: 20px 20px;
+      background-color: #f2d19f;
+      /* White background for contrast */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      /* Optional: adds depth */
+    }
+
+    .map {
+      height: 400px;
+      width: 100%;
+    }
+  </style>
+  <style>
+    .description {
+      font-size: 16px;
+      color: #000;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .image {
+      padding: 10px;
+    }
+
+    .image-link img {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .image-link img:hover {
+      transform: scale(1.05);
+      /* Slightly enlarge the image */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      /* Add a shadow effect */
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.4.3/build/ol.js"></script>
+
+</head>
+
+<body>
+  <div class="wrapper grid-enhanced">
+    <!-- =========================
+        Header 
+    =========================== -->
+    <header class="header header-transparent" style="background-color: black;">
+      <nav class="navbar navbar-expand-lg">
+        <div class="container">
+          <a class="navbar-brand" style="color:white" href="index.html">
+            <!-- <img src="assets/images/logo/logo-light.png" class="logo-light" alt="logo">-->
+            <img class="logoImage" src="assets/images/logo/logo.png">
+          </a>
+          <button class="navbar-toggler" type="button">
+            <span class="menu-lines"><span></span></span>
+          </button>
+          <div class="collapse navbar-collapse" id="mainNavigation">
+
+          </div><!-- /.navbar-collapse -->
+          <div class="navbar-actions">
+            <ul class="navbar__actions-list list-unstyled mb-0 d-flex align-items-center">
+              <li><a style="cursor: pointer" href="mailto:contact@originsoftconsultancy.com"
+                  class="action__btn btn btn__white action__btn-contact">Contact</a></li>
+            </ul><!-- /.navbar__actions-list -->
+          </div><!-- /.navbar-actions -->
+        </div><!-- /.container -->
+      </nav><!-- /.navabr -->
+    </header><!-- /.Header -->
+
+    <section class="banner-layout2 animated-Progressbars pt-40 pb-40" id="dilemma">
+      <div class="container">
+        <div class="row">
+          <!-- Image Column -->
+          <div class="col-sm-12 col-md-12 col-lg-4" align="center">
+            <div class="banner-img image">
+              <a href="/data-solutions.html" class="image-link" title="Click to read more"><img
+                  src="assets/images/new/delima.jfif" alt="banner-img"></a>
+              <p class="description">
+                <b>Data Solutions</b> empower organizations to harness the full potential of their data. Our
+                comprehensive data
+                handling and reconciliation services ensure data accuracy, consistency, and reliability across all your
+                systems. Unlock the power of your data to drive informed decision-making and achieve operational
+                excellence.
+              </p>
+            </div><!-- /.banner-img -->
+          </div><!-- /.col-lg-4 -->
+
+          <!-- Text Column -->
+          <div class="col-sm-12 col-md-12 col-lg-4" align="center">
+            <div class="banner-img image">
+              <a href="/3d-assets-animation-designing.html" class="image-link" title="Click to read more"><img
+                  src="assets/images/new/donut.jpg" alt="banner-img"></a>
+              <p class="description">
+                <b>3D Assets & Animation</b> Designing brings your creative visions to life with stunning visuals and
+                animations. Our expert team crafts 3D models and animations that captivate and engage your
+                audience. Elevate your projects with cutting-edge design and animation solutions that stand out in a
+                competitive market.
+              </p>
+            </div><!-- /.banner-img -->
+          </div><!-- /.col-lg-4 -->
+
+          <!-- Text Column -->
+          <div class="col-sm-12 col-md-12 col-lg-4" align="center">
+            <div class="banner-img image">
+              <a href="/robotic-process-automation.html" class="image-link" title="Click to read more"><img
+                  src="assets/images/new/rpa.jpg" alt="banner-img"></a>
+              <p class="description">
+                <b>Robotic Process Automation</b> (RPA) revolutionizes the way businesses operate by automating
+                repetitive
+                tasks and processes. With RPA, you can achieve higher efficiency, reduce errors, and free up valuable
+                human resources for more strategic work. Embrace the future of automation and transform your business.
+              </p>
+            </div><!-- /.banner-img -->
+          </div><!-- /.col-lg-4 -->
+        </div>
+      </div>
+    </section>
+    <br>
+    <!-- ========================
+      Footer
+    ========================== -->
+    <footer class="footer">
+      <div class="footer-bottom">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12 text-center">
+              <div class="footer__copyright">
+                <nav>
+                  <ul class="footer__copyright-links list-unstyled d-flex flex-wrap justify-content-center mb-0">
+                    <li><a href="https://www.linkedin.com/company/originsoft-technologies/?viewAsMember=true"
+                        target="_blank">Follow Us </a></li>
+                    <li><a style="cursor: pointer" href="mailto:contact@originsoftconsultancy.com">Contact Us</a>
+                    </li>
+                  </ul>
+                </nav>
+                <p class="fz-13 mb-0">&copy; Copyright Originsoft IT Consultancy Services Private Limited</a>
+                </p>
+              </div><!-- /.Footer-copyright -->
+            </div><!-- /.col-lg-9 -->
+          </div><!-- /.row -->
+        </div><!-- /.container -->
+      </div><!-- /.Footer-bottom -->
+    </footer><!-- /.Footer -->
+  </div><!-- /.wrapper -->
+
+  <script src="assets/js/jquery-3.3.1.min.js"></script>
+  <script src="assets/js/plugins.js"></script>
+  <script src="assets/js/main.js"></script>
+
+
+</body>
+
+</html>
