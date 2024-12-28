@@ -177,8 +177,6 @@ def send_email(sender: str, recipient: str, subject: str, body: str) -> bool:
         sendgrid_client = SendGridAPIClient(api_key)
         response = sendgrid_client.send(message)
 
-        print(response.status_code)
-        print(response.body)
         return True
     except Exception as e:
         return False
@@ -186,17 +184,15 @@ def send_email(sender: str, recipient: str, subject: str, body: str) -> bool:
 
 async def main():
 
-    send_email("hey@mobilegaragefleets.com",
-               'mudassarm30@gmail.com', "Test email", "Hello world")
-    # result = await agent.run("""
-    #                            Please send me `Hello World` by an email using SendGrid API.
-    #                            Use the following SendGrid API key and email details:
-    #                            SendGrid API key: os.getenv("SENDGRID_API_KEY")
-    #                            from_email: 'hey@mobilegaragefleets.com'
-    #                            to_emails: 'hassan.zafar1994@gmail.com,mudassarm30@gmail.com'
-    #
-    #                            """)
-    # print(result._all_messages[-1].content)
+    result = await agent.run("""
+                             Please send me `Hello World` by an email using SendGrid API.
+                             Use the following SendGrid API key and email details:
+                             SendGrid API key: os.getenv("SENDGRID_API_KEY")
+                             from_email: 'hey@mobilegaragefleets.com'
+                             to_emails: 'hassan.zafar1994@gmail.com,mudassarm30@gmail.com' 
+                             
+                             """)
+    print(result._all_messages[-1].content)
 
 
 asyncio.run(main())
