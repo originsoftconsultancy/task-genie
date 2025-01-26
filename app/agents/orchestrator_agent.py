@@ -24,6 +24,5 @@ task_genie = Agent(
     deps_type=str,
     result_type=str,
     tools=[
-        agents.tools.research_tool
     ]
 )

@@ -11,3 +11,8 @@ lxml>=4.9.0
 html5lib>=1.1
 htmlmin
 sendgrid
+tavily-python
+crawl4ai
+psutil
+FlagEmbedding
+supabase

@@ -1,52 +1,120 @@
-from pydantic_ai import Tool
-import logfire
-from pydantic_ai import Agent, RunContext
 import uuid
-from app.agents.fetch_web_agent import fetch_web_agent
-from app.agents.scrapper_agent import scrapper_agent
-from app.agents.research_agent import research_agent
+import sendgrid
+from sendgrid.helpers.mail import Mail, To, Attachment, FileContent, FileName, FileType, Disposition
+from sendgrid import SendGridAPIClient
+from pydantic_ai.models.ollama import OllamaModel
+from typing import Optional, Union, List
+import openai
+from pydantic import BaseModel, Field, ValidationError
+from pydantic_ai import Agent, RunContext, Tool
+from playwright.sync_api import sync_playwright
+import ast
 import os
+import asyncio
+from pydantic_ai.models import ModelResponse
+import logfire
+from dotenv import load_dotenv
+from pydantic.dataclasses import dataclass
+import subprocess
+import sys
+import traceback
+from tavily import TavilyClient
+import base64
 
 logfire.configure()
 
 
-async def research_tool(ctx: RunContext[str], prompt: str) -> str:
+def search_tool(query: str) -> dict:
     """
-    This tool is used to delegate the task to `research_agent` to research the provided user `prompt`
-    This tool can download a web page from url and can process the data.
-    params:
-    - ctx: RunContext[str]: The context of the run
-    - prompt: str: The prompt to be used for research
+    This tool searches for a query on the internet and returns results in json.
+
+    Args:
+        query: str, The query to search.
+
+    Returns:
+        dict: the results of the search.
     """
 
-    logfire.info(
-        f"Attempting to call the research_agent for research, prompt: " + prompt)
+    tavily_client = TavilyClient(
+        api_key=os.getenv("TAVILY_API_KEY"))
 
+    response = tavily_client.search(query)
+
+    return response["results"]
+
+
+def load_page_tool(url: str) -> str:
+    """
+    Fetches the web page given by the `url`, stores in a file and returns its contents.
+
+    Args:
+        url: str, url of the web page to fetch.
+
+    Returns:
+        str: file path where contents are stored.
+
+    """
+
+    logfire.info(f"Loading page: {url}")
+    content = ""
+    with sync_playwright() as p:
+        # Launch the browser in headless mode
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page()
+
+        # Navigate to the URL
+        page.goto(url)
+
+        # Wait for the page to fully load
+        page.wait_for_load_state("networkidle")
+
+        # Get the rendered HTML
+        content = page.content()
+        browser.close()
+
+    return content
+
+
+def send_email_with_attachment_tool(to_email, subject, content, file_path):
+    """
+    Sends an email with an attachment using SendGrid API.
+
+    Parameters:
+        to_email (str): Recipient's email address.
+        subject (str): Email subject.
+        content (str): Email content.
+        file_path (str): Path to the attachment file.
+
+    Returns:
+        str: Status message indicating success or failure.
+    """
     try:
-        response = await research_agent.run(prompt)
-        logfire.info(f"Received data from the research_agent")
-        return response.data
+        # Create the email
+        message = Mail(
+            from_email=os.getenv("SENDGRID_FROM_EMAIL"),
+            to_emails=to_email,
+            subject=subject,
+            plain_text_content=content
+        )
+
+        # Add the attachment
+        if file_path:
+            with open(file_path, 'rb') as f:
+                file_data = f.read()
+                encoded_file = base64.b64encode(file_data).decode()
+
+            attachment = Attachment(
+                FileContent(encoded_file),
+                FileName(os.path.basename(file_path)),
+                FileType("application/octet-stream"),
+                Disposition("attachment")
+            )
+            message.attachment = attachment
+
+        # Send the email
+        sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY"))
+        response = sg.send(message)
+        return f"Email sent successfully! Status code: {response.status_code}"
+
     except Exception as e:
-        logfire.error(f"Error calling the research_agent: {e}")
-        return f"Error calling the research_agent: {e}"
-
-
-async def scrap_from_contents_tool(ctx: RunContext[str], prompt: str) -> dict:
-    """
-    This tool is used to delegate the task to `scrapper_agent` to fetch and scrap data for the provided user `prompt`. 
-    Please notice that this tool can download the webpage contents and then scrap the data from it.
-    params:
-    - ctx: RunContext[str]: The context of the run
-    - file_path: str: The path to the local file that contains the html contents
-    - prompt: str: The prompt to be used for scrapping
-    """
-    logfire.info(
-        f"Attempting to call the scrapper_agent for scrapping the contents as JSON, prompt: " + prompt)
-
-    try:
-        response = await scrapper_agent.run(prompt)
-        logfire.info(f"Received data from the scrapper_agent")
-        return response.data
-    except Exception as e:
-        logfire.error(f"Error calling the scrapper_agent: {e}")
-        return f"Error calling the scrapper_agent: {e}"
+        return f"An error occurred: {str(e)}"
