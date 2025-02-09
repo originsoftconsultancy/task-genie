@@ -16,3 +16,6 @@ crawl4ai
 psutil
 FlagEmbedding
 supabase
+crewai
+crewai_tools
+openai

@@ -11,11 +11,12 @@ from pydantic_ai import Agent, ModelRetry, RunContext
 from typing import List
 from supabase import create_client, Client
 from FlagEmbedding import FlagModel
+from pydantic_ai.models.openai import OpenAIModel
 
 load_dotenv()
 
-llm = os.getenv('LLM_MODEL')
-model = OllamaModel(llm)
+model = OpenAIModel(model_name=os.getenv("ALI_BABA_MODEL_NAME"),
+                    base_url=os.getenv("ALI_BABA_BASE_URL"), api_key=os.getenv("ALI_BABA_API_KEY"))
 
 logfire.configure(send_to_logfire='if-token-present')
 
@@ -48,7 +49,7 @@ pydantic_ai_expert = Agent(
     model=model,
     system_prompt=system_prompt,
     deps_type=PydanticAIDeps,
-    retries=2
+    retries=1
 )
 
 

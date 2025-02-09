@@ -1,6 +1,7 @@
 from FlagEmbedding import FlagModel
 import uuid
 from pydantic_ai.models.ollama import OllamaModel
+from pydantic_ai.models.openai import OpenAIModel
 from typing import Optional, Union, List
 from pydantic import BaseModel, Field, ValidationError
 from pydantic_ai import Agent, RunContext, Tool
@@ -12,21 +13,20 @@ from dotenv import load_dotenv
 import subprocess
 import sys
 import traceback
+from app.utils.code2exec import CodeExecutor
 from pydantic_ai_expert import PydanticAIDeps, pydantic_ai_expert
-import re
 
 load_dotenv()
-logfire.configure()
+# logfire.configure()
 
 
 class SolutionArchitect(Agent):
 
     def __init__(self, model, name, system_prompt, deps_type, result_type, tools):
 
-        # model_settings={"temperature": 0.0}
-
         self.developer = Agent(
-            OllamaModel(os.getenv("REASONING_MODEL")),
+            OpenAIModel(model_name=os.getenv("ALI_BABA_MODEL_NAME"),
+                        base_url=os.getenv("ALI_BABA_BASE_URL"), api_key=os.getenv("ALI_BABA_API_KEY")),
             name="developer",
             deps_type=str,
             result_type=str,
@@ -37,48 +37,55 @@ class SolutionArchitect(Agent):
                 Keep your output as follows:
                 ```python
                    <your code, including imports>
-                ``` 
+                ```
                 ```requirements
                     <your requirements>
                 ```
                 ```env_vars
                     <your environment variables>
                 ```
-            """
+            """,
+            retries=1,
+            tools=[Tool(self.get_multiagent_knowledge)]
         )
 
         super().__init__(model=model, name=name, system_prompt=system_prompt,
                          deps_type=deps_type, result_type=result_type, tools=tools)
 
+    async def get_multiagent_knowledge(self, ctx: RunContext[str], query: str) -> str:
+        """
+        This function detailed knowledge about creating pydantic_ai agents and tools for the given prompt given in `query`.
+
+        Args:
+            query: str, The query is the original prompt
+
+        Returns:
+            str: detailed documentation about creating pydantic_ai agents and tools for the given prompt given in `query`.
+        """
+
+        result = await pydantic_ai_expert.run(query)
+
+        return result._all_messages[-1].parts[0].content
+
     async def run(self, query, message_history=[]):
 
-        result = await self.developer.run(query, message_history=message_history)
+        done = False
+        while not done:
+            try:
 
-        code, requirements, env_vars = self._extract_function_and_requirements(
-            result._all_messages[-1].parts[0].content)
+                result = await self.developer.run(query, message_history=message_history)
 
-        print(code)
-        print(requirements)
-        print(env_vars)
+                message_history = result._all_messages
 
-    def _extract_function_and_requirements(self, text):
+                code_executor = CodeExecutor()
 
-        # Regex patterns for Python code and requirements
-        code_pattern = r"```python(.*?)```"
-        requirements_pattern = r"```requirements(.*?)```"
-        env_vars_pattern = r"```env_vars(.*?)```"
+                return code_executor.execute(
+                    result._all_messages[-1].parts[0].content)
 
-        # Extract the first occurrence of each
-        code = re.search(code_pattern, text, re.DOTALL)
-        requirements = re.search(requirements_pattern, text, re.DOTALL)
-        env_vars = re.search(env_vars_pattern, text, re.DOTALL)
-
-        # Get the matched strings or set as empty if not found
-        code = code.group(1).strip() if code else ""
-        requirements = requirements.group(1).strip() if requirements else ""
-        env_vars = env_vars.group(1).strip() if env_vars else ""
-
-        return code, requirements, env_vars
+            except Exception as e:
+                query = f"There is problem with the code. Please try again. \nErrors: {e}"
+                print(e)
+                done = False
 
 
 model = OllamaModel(os.getenv("LLM_MODEL"))
@@ -99,7 +106,8 @@ async def main():
     messages = []
     while prompt != "exit":
         prompt = input("User: ")
-        await agent.run(prompt, message_history=messages)
+        result = await agent.run(prompt, message_history=messages)
+        print("Architect: \n" + result)
 
 if __name__ == "__main__":
     asyncio.run(main())
