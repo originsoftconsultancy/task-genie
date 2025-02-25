@@ -1,0 +1,5 @@
+python-dotenv==1.0.1
+crewai
+crewai_tools
+crawl4ai
+sib_api_v3_sdk

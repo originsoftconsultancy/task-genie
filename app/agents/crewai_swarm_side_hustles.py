@@ -10,12 +10,7 @@ from fpdf import FPDF
 load_dotenv()
 
 # Set up the Ali Baba Model
-llm = LLM(
-    model="gemini/gemini-1.5-pro-latest",
-    temperature=0.7,
-    api_key=os.getenv("GEMINI_API_KEY"),
-    max_rpm=1,
-)
+llm = LLM(model="ollama/qwen2.5:latest", base_url="http://localhost:11434")
 
 os.environ["SERPER_API_KEY"] = "3cb6b8eabfba4c284b11dfe3e2e694d61c2de09a"
 os.environ['LITELLM_LOG'] = 'DEBUG'

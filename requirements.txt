@@ -19,3 +19,4 @@ supabase
 crewai
 crewai_tools
 openai
+pygame
