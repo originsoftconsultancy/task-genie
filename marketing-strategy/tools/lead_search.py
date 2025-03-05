@@ -1,4 +1,3 @@
-from crawl4ai import *
 from pydantic import BaseModel, Field
 from crewai.tools import BaseTool
 from typing import Type
@@ -7,9 +6,8 @@ import urllib.parse
 import os
 from dotenv import load_dotenv
 import re
-import asyncio
 from crawl4ai.web_crawler import WebCrawler
-from data_storage import *
+from tools.data_storage import *
 
 load_dotenv()
 
@@ -51,16 +49,6 @@ class SerperSearchTool(BaseTool):
 
 
 search_tool = SerperSearchTool(api_key=os.getenv("SERPER_API_KEY"))
-
-
-async def crawl(url: str):
-    """Crawl the given URL synchronously."""
-
-    async with AsyncWebCrawler() as crawler:
-        result = await crawler.arun(
-            url=url,
-        )
-        return result
 
 
 def process_leads(leads, profession: str):
@@ -112,9 +100,6 @@ def fetch_leads(profession: str):
 
 
 def insert_leads(leads):
-
-    create_table(
-        "leads", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, email TEXT, profession TEXT, link TEXT")
 
     for lead in leads:
         insert_data(

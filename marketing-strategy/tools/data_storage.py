@@ -7,7 +7,10 @@ load_dotenv()
 
 
 def create_table(table_name: str, columns: str):
-    """Create a table with the given name and columns."""
+    """
+        Create a table with the given name and columns.
+        Example: id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, email TEXT, profession TEXT, link TEXT
+    """
     conn = sqlite3.connect(os.getenv('STORAGE_DB'))
     cursor = conn.cursor()
 
