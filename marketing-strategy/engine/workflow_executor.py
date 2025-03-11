@@ -55,7 +55,7 @@ class WorkflowExecutor:
         print("Executing workflow...")
 
         for step in self.workflow.get("workflow", {}).get("steps", []):
-            self.execute_step(step)
+            yield from self.execute_step(step)
 
         print("Workflow execution completed.")
 
@@ -69,7 +69,7 @@ class WorkflowExecutor:
         elif step_type == "api_call":
             self.execute_api_call(step)
         elif step_type == "llm_call":
-            self.execute_llm_call(step)
+            yield from self.execute_llm_call(step)
         elif step_type == "conditional":
             self.execute_conditional(step)
         elif step_type == "for_loop":
@@ -127,6 +127,14 @@ class WorkflowExecutor:
         """
         Executes an LLM (Language Model) call step.
         """
+
+        # yield bytes for the string
+        def bytes_yielder(string):
+            message = {"message": {"content": string}}
+            yield (json.dumps(message) + '\n').encode('utf-8')
+
+        yield from bytes_yielder("Extracting prompt and system_prompt")
+
         # Resolve the prompt from the context
         prompt = step["parameters"].get("prompt")
         system_prompt = step["parameters"].get("system_prompt")
@@ -147,6 +155,8 @@ class WorkflowExecutor:
         print(
             f"Generating LLM response for prompt: '{prompt}' with system prompt: '{system_prompt}'")
 
+        yield from bytes_yielder("Generating LLM response")
+
         with capture_run_messages() as messages:
             try:
                 llm_response = asyncio.run(
@@ -157,6 +167,8 @@ class WorkflowExecutor:
 
                     for key, value in llm_response.items():
                         self.context[key] = value
+                        # yield from bytes_yielder(
+                        #    f"Extracted {key} from the response as {value}")
 
                 else:
                     self.context["response"] = llm_response.data

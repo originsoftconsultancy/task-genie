@@ -8,3 +8,5 @@ sib_api_v3_sdk
 pydantic
 pydantic-ai
 pydantic-ai[logfire]
+Flask
+flask-cors
