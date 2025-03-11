@@ -9,11 +9,9 @@
                 "step": "Extract Information",
                 "type": "llm_call",
                 "parameters": {
-                    "prompt": "I want to send a message to doctors about our services for HIPPA compliance dashboards that can help them focus more on their medical services instead of compliance requirements. Our website landing page is https://abc-compliance.com.",
-                    "input_keys": [
-                        "audience",
-                        "campaign_message"
-                    ],
+                    "system_prompt": "Extract the audience and campaign message from the given user prompt.",
+                    "prompt": "$initial_context.prompt",
+                    "input_keys": [],
                     "output_keys": [
                         "audience",
                         "campaign_message"

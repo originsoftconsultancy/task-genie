@@ -6,7 +6,6 @@ import urllib.parse
 import os
 from dotenv import load_dotenv
 import re
-from crawl4ai.web_crawler import WebCrawler
 from tools.data_storage import *
 
 load_dotenv()

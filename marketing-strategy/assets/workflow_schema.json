@@ -62,6 +62,10 @@
                                                 ],
                                                 "description": "HTTP method for API calls"
                                             },
+                                            "system_prompt": {
+                                                "type": "string",
+                                                "description": "LLM system prompt (if applicable)"
+                                            },
                                             "prompt": {
                                                 "type": "string",
                                                 "description": "LLM prompt (if applicable)"
