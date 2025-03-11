@@ -1,0 +1,62 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "workflow": {
+        "id": "simple_message_broadcast_001",
+        "name": "Simple Message Broadcast",
+        "description": "A workflow to send a broadcast message to an audience with campaign details.",
+        "steps": [
+            {
+                "step": "Extract Information",
+                "type": "llm_call",
+                "parameters": {
+                    "system_prompt": "Extract the audience and campaign message from the given user prompt.",
+                    "prompt": "$initial_context.prompt",
+                    "input_keys": [],
+                    "output_keys": [
+                        "audience",
+                        "campaign_message"
+                    ]
+                }
+            },
+            {
+                "step": "Get Leads",
+                "type": "tool_call",
+                "parameters": {
+                    "tool": "lead_search",
+                    "input_keys": [
+                        "audience"
+                    ],
+                    "output_keys": [
+                        "leads"
+                    ]
+                }
+            },
+            {
+                "step": "Write a Campaign Email",
+                "type": "llm_call",
+                "parameters": {
+                    "prompt": "Please write a professional campaign email for the given audience and campaign message, including links and relevant details.",
+                    "input_keys": [
+                        "audience",
+                        "campaign_message"
+                    ],
+                    "output_keys": [
+                        "email_content"
+                    ]
+                }
+            },
+            {
+                "step": "Send Campaign Email",
+                "type": "tool_call",
+                "parameters": {
+                    "tool": "email_client",
+                    "input_keys": [
+                        "leads",
+                        "email_content"
+                    ],
+                    "output_keys": []
+                }
+            }
+        ]
+    }
+}

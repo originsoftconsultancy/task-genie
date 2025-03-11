@@ -1,0 +1,232 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "workflow": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Unique workflow identifier"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Workflow name"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Description of the workflow"
+                },
+                "steps": {
+                    "type": "array",
+                    "items": {
+                        "oneOf": [
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "step": {
+                                        "type": "string",
+                                        "description": "Step name"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "tool_call",
+                                            "api_call",
+                                            "llm_call",
+                                            "conditional",
+                                            "for_loop",
+                                            "while_loop"
+                                        ],
+                                        "description": "Step type"
+                                    },
+                                    "parameters": {
+                                        "type": "object",
+                                        "description": "Step-specific parameters",
+                                        "properties": {
+                                            "tool": {
+                                                "type": "string",
+                                                "description": "Tool name for tool_call"
+                                            },
+                                            "api": {
+                                                "type": "string",
+                                                "description": "API endpoint for api_call"
+                                            },
+                                            "method": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "GET",
+                                                    "POST",
+                                                    "PUT",
+                                                    "DELETE"
+                                                ],
+                                                "description": "HTTP method for API calls"
+                                            },
+                                            "system_prompt": {
+                                                "type": "string",
+                                                "description": "LLM system prompt (if applicable)"
+                                            },
+                                            "prompt": {
+                                                "type": "string",
+                                                "description": "LLM prompt (if applicable)"
+                                            },
+                                            "input_keys": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "description": "Input variables"
+                                            },
+                                            "output_keys": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "description": "Output variables"
+                                            },
+                                            "payload": {
+                                                "type": "object",
+                                                "description": "Payload for API/tool calls"
+                                            },
+                                            "response_keys": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "description": "Expected response fields"
+                                            }
+                                        },
+                                        "required": [
+                                            "input_keys",
+                                            "output_keys"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "step",
+                                    "type",
+                                    "parameters"
+                                ]
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "parallel": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#"
+                                        },
+                                        "description": "Parallel execution of steps"
+                                    }
+                                },
+                                "required": [
+                                    "parallel"
+                                ]
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "step": {
+                                        "type": "string",
+                                        "description": "Conditional step name"
+                                    },
+                                    "type": {
+                                        "const": "conditional"
+                                    },
+                                    "conditions": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "condition": {
+                                                    "type": "string",
+                                                    "description": "Condition to evaluate (e.g., '{{variable}} > 50')"
+                                                },
+                                                "next_step": {
+                                                    "$ref": "#"
+                                                }
+                                            },
+                                            "required": [
+                                                "condition",
+                                                "next_step"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "step",
+                                    "type",
+                                    "conditions"
+                                ]
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "step": {
+                                        "type": "string",
+                                        "description": "Loop step name"
+                                    },
+                                    "type": {
+                                        "const": "for_loop"
+                                    },
+                                    "loop_variable": {
+                                        "type": "string",
+                                        "description": "Loop iterator variable"
+                                    },
+                                    "iterable": {
+                                        "type": "string",
+                                        "description": "Variable holding list of items"
+                                    },
+                                    "body": {
+                                        "$ref": "#"
+                                    }
+                                },
+                                "required": [
+                                    "step",
+                                    "type",
+                                    "loop_variable",
+                                    "iterable",
+                                    "body"
+                                ]
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "step": {
+                                        "type": "string",
+                                        "description": "Loop step name"
+                                    },
+                                    "type": {
+                                        "const": "while_loop"
+                                    },
+                                    "condition": {
+                                        "type": "string",
+                                        "description": "Loop condition (evaluated before each iteration)"
+                                    },
+                                    "body": {
+                                        "$ref": "#"
+                                    }
+                                },
+                                "required": [
+                                    "step",
+                                    "type",
+                                    "condition",
+                                    "body"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "name",
+                "description",
+                "steps"
+            ]
+        }
+    },
+    "required": [
+        "workflow"
+    ]
+}

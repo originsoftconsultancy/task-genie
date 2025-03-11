@@ -1,0 +1,10 @@
+python-dotenv==1.0.1
+langchain_openai 
+langchain_core
+crewai
+crewai_tools
+crawl4ai
+sib_api_v3_sdk
+pydantic
+pydantic-ai
+pydantic-ai[logfire]
