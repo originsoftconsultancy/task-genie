@@ -1,0 +1,242 @@
+.how-it-works {
+  padding: 5rem 1rem;
+  background: linear-gradient(to right, #6366f1, #ec4899);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05);
+}
+
+.hiw-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.hiw-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+}
+
+.hiw-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+.try-avatars-btn {
+  background-color: #6366f1;
+  color: white;
+  text-decoration: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.try-avatars-btn:hover {
+  background-color: #4f46e5;
+}
+
+.hiw-content {
+  display: flex;
+  gap: 4rem;
+  align-items: stretch;
+}
+
+.hiw-accordion {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.accordion-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.accordion-item:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.accordion-item.expanded {
+  border-color: #6366f1;
+}
+
+.accordion-header {
+  display: flex;
+  align-items: center;
+  padding: 1.25rem;
+  background-color: #f9fafb;
+  transition: background-color 0.3s ease;
+}
+
+.accordion-item.expanded .accordion-header {
+  background-color: #f3f4ff;
+}
+
+.item-number {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  border-radius: 50%;
+  font-weight: 600;
+  margin-right: 1rem;
+  color: #6366f1;
+  font-family: 'Poppins', sans-serif;
+}
+
+.item-title {
+  flex: 1;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+  color: #111827;
+  font-family: 'Poppins', sans-serif;
+}
+
+.expand-icon {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.accordion-content {
+  background-color: white;
+  padding: 0 1.25rem;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.accordion-item.expanded .accordion-content {
+  padding: 0 1.25rem 1.25rem;
+  max-height: 1000px;
+}
+
+.accordion-content p {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.6;
+  font-family: 'Inter', sans-serif;
+}
+
+.hiw-preview {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.phone-mockup {
+  width: 320px;
+  height: 620px;
+  background-color: #1a1a1a;
+  border-radius: 40px;
+  padding: 10px;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.phone-screen {
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  border-radius: 32px;
+  overflow: hidden;
+  position: relative;
+}
+
+.app-preview {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.avatar-preview {
+  height: 35%;
+  overflow: hidden;
+  position: relative;
+}
+
+.avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-bubbles {
+  flex: 1;
+  background-color: #f3f4f6;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.speech-bubble {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 1.5rem;
+  margin-top: -1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 1rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.highlight {
+  background-color: #ebf5ff;
+  font-weight: 600;
+  padding: 0 0.25rem;
+  border-radius: 0.25rem;
+  display: inline-block;
+  color: #1e40af;
+}
+
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.avatar-option {
+  aspect-ratio: 1;
+  background-color: #e5e7eb;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+@media (max-width: 1024px) {
+  .hiw-content {
+    flex-direction: column;
+    gap: 3rem;
+  }
+  
+  .hiw-preview {
+    order: -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .hiw-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+} 
