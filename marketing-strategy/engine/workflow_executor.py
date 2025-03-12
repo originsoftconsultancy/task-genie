@@ -56,6 +56,7 @@ class WorkflowExecutor:
 
         for step in self.workflow.get("workflow", {}).get("steps", []):
             yield from self.execute_step(step)
+            return
 
         print("Workflow execution completed.")
 
@@ -128,12 +129,7 @@ class WorkflowExecutor:
         Executes an LLM (Language Model) call step.
         """
 
-        # yield bytes for the string
-        def bytes_yielder(string):
-            message = {"message": {"content": string}}
-            yield (json.dumps(message) + '\n').encode('utf-8')
-
-        yield from bytes_yielder("Extracting prompt and system_prompt")
+        yield from self.yield_message("Extracting prompt and system_prompt")
 
         # Resolve the prompt from the context
         prompt = step["parameters"].get("prompt")
@@ -155,7 +151,7 @@ class WorkflowExecutor:
         print(
             f"Generating LLM response for prompt: '{prompt}' with system prompt: '{system_prompt}'")
 
-        yield from bytes_yielder("Generating LLM response")
+        yield from self.yield_message("Generating LLM response")
 
         with capture_run_messages() as messages:
             try:
@@ -167,8 +163,6 @@ class WorkflowExecutor:
 
                     for key, value in llm_response.items():
                         self.context[key] = value
-                        # yield from bytes_yielder(
-                        #    f"Extracted {key} from the response as {value}")
 
                 else:
                     self.context["response"] = llm_response.data
@@ -271,3 +265,7 @@ class WorkflowExecutor:
         except jsonschema.exceptions.ValidationError as e:
             print(f"Workflow validation failed: {e.message}")
             raise
+
+    def yield_message(self, string):
+        message = {"message": {"content": string}}
+        yield (json.dumps(message) + '\n').encode('utf-8')
