@@ -29,7 +29,9 @@ const generateSingleResponse = async (message, progressCallback, format = 'text'
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    let accumulatedResponse = '';
+    
+    // Remove accumulated response since we're creating separate messages
+    // let accumulatedResponse = '';
 
     while (true) {
       const { done, value } = await reader.read();
@@ -44,23 +46,37 @@ const generateSingleResponse = async (message, progressCallback, format = 'text'
 
         try {
           const json = JSON.parse(line);
-          if (json.message && json.message.type == "text") {
-            accumulatedResponse += json.message.content + '\n';
-            progressCallback(accumulatedResponse);
+          if (json.message && json.message.type) {
+            const content = json.message.content;
+            const type = json.message.type;
+            
+            // Handle each message type as a separate message
+            if (type === "text") {
+              // Create a new message for text
+              progressCallback(content, 'text');
+            }
+            else if (type === 'file') {
+              // Extract filename from URL and create a file message
+              const fileUrl = content;
+              const fileName = fileUrl.substring(fileUrl.lastIndexOf('/')+1);
+              progressCallback(fileUrl, 'file', fileName);
+            }
+            else if (type === 'image') {
+              // Create an image message
+              progressCallback(content, 'image');
+            }
+            else if (type === 'table') {
+              // Create a table message
+              progressCallback(content, 'table');
+            }
           }
-          else if (json.message && json.message.type == 'image') {
-            accumulatedResponse += json.message.content + '\n';
-            progressCallback(accumulatedResponse);
-          }
-          
-          
         } catch (e) {
           console.error('Error parsing JSON from stream:', e);
         }
       }
     }
 
-    return accumulatedResponse;
+    return 'Response complete';
   } catch (error) {
     console.error('Error calling Ollama API:', error);
     throw error;
@@ -123,97 +139,109 @@ const Chat = () => {
     setInputText('');
     setLoading(true);
 
-    // Add empty AI message immediately with a typing indicator
-    const aiMessageId = messageIdCounter + 1;
-    setMessages(prev => [...prev, {
-      id: aiMessageId,
-      text: "", // Start with empty text
-      sender: "ai",
-      isTyping: true // Flag to show typing indicator
-    }]);
-    setMessageIdCounter(prev => prev + 2);
-
     try {
       // Generate text response
       console.log("Generating text response...");
       await generateSingleResponse(
         newUserMessage.text,
-        (accumulatedText) => {
-          // Update the AI message with accumulated text in real-time
-          setMessages(prev =>
-            prev.map(msg =>
-              msg.id === aiMessageId
-                ? { ...msg, text: accumulatedText, isTyping: true }
-                : msg
-            )
-          );
+        (content, type = 'text', meta = null) => {
+          // Create a new message for each response
+          const newResponseId = messageIdCounter + Math.random(); // Ensure unique ID
+          
+          setMessages(prev => [...prev, {
+            id: newResponseId,
+            text: content,
+            type: type,
+            meta: meta,
+            sender: "ai",
+            isTyping: false
+          }]);
+          
+          setMessageIdCounter(prev => prev + 1);
         },
         'text'
-      );
-
-      // Mark message as complete (remove typing indicator)
-      setMessages(prev =>
-        prev.map(msg =>
-          msg.id === aiMessageId
-            ? { ...msg, isTyping: false }
-            : msg
-        )
       );
 
     } catch (error) {
       console.error('Error generating response:', error);
 
-      // Update AI message to show error
-      setMessages(prev =>
-        prev.map(msg =>
-          msg.id === aiMessageId
-            ? {
-              ...msg,
-              text: `Sorry, I encountered an error: ${error.message}. Please try again.`,
-              isTyping: false
-            }
-            : msg
-        )
-      );
+      // Add error message
+      setMessages(prev => [...prev, {
+        id: messageIdCounter,
+        text: `Sorry, I encountered an error: ${error.message}. Please try again.`,
+        sender: "ai",
+        isTyping: false
+      }]);
+      setMessageIdCounter(prev => prev + 1);
     } finally {
       setLoading(false);
     }
   };
 
-  // Render response content with proper formatting to handle both text and images
-  const renderResponseContent = (content, type) => {
+  // Render response content with proper formatting
+  const renderResponseContent = (content, type, meta) => {
     if (!content) return null;
 
-    // Regular text formatting with line breaks, but detect and render images
-    const lines = content.split('\n');
-    
-    return (
-      <div>
-        {lines.map((line, i) => {
-          // Check if the line looks like an image URL (data URI or ends with image extension)
-          const isImageUrl = line.startsWith('data:image') || 
-                            /\.(jpeg|jpg|gif|png|webp|svg)(\?.*)?$/i.test(line) ||
-                            line.includes('image');
-          
-          if (isImageUrl) {
-            // Render as an image
-            return (
-              <div key={i} className="">
-                <img src={line} alt="Generated content" className="chat-image" style={{width: '80%', margin: '20px 0px'}}/>
-              </div>
-            );
-          } else {
-            // Render as text
-            return (
-              <React.Fragment key={i}>
-                {line}
-                {i < lines.length - 1 && <br />}
-              </React.Fragment>
-            );
-          }
-        })}
-      </div>
-    );
+    // Handle different types of content
+    switch(type) {
+      case 'image':
+        return (
+          <div className="image-container">
+            <img src={content} alt="Generated image" className="chat-image" />
+          </div>
+        );
+        
+      case 'file':
+        // Extract filename from URL or use meta if available
+        const fileName = meta || content.substring(content.lastIndexOf('/')+1);
+        return (
+          <div className="file-container">
+            <a href={content} target="_blank" rel="noopener noreferrer" className="pdf-button">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <polyline points="14 2 14 8 20 8" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span>Download {fileName}</span>
+            </a>
+          </div>
+        );
+        
+      case 'table':
+        // Parse CSV content
+        const rows = content.split('\n');
+        return (
+          <div className="table-container">
+            <table className="message-table">
+              <thead>
+                <tr>
+                  {rows[0].split(',').map((header, i) => (
+                    <th key={i}>{header}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.slice(1).map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {row.split(',').map((cell, cellIndex) => (
+                      <td key={cellIndex}>{cell}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+        
+      case 'text':
+      default:
+        // Regular text formatting with line breaks
+        return content.split('\n').map((line, i) => (
+          <React.Fragment key={i}>
+            {line}
+            {i < content.split('\n').length - 1 && <br />}
+          </React.Fragment>
+        ));
+    }
   };
 
   // Handle quick prompts
@@ -253,7 +281,7 @@ const Chat = () => {
                       className={`message ${message.sender === 'user' ? 'user-message' : 'ai-message'}`}
                     >
                       {message.sender === 'ai'
-                        ? renderResponseContent(message.text, message.type)
+                        ? renderResponseContent(message.text, message.type, message.meta)
                         : message.text
                       }
                       {message.sender === 'ai' && message.isTyping &&
