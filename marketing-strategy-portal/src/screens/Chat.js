@@ -17,7 +17,7 @@ const generateSingleResponse = async (message, progressCallback, format = 'text'
   try {
     console.log('Sending request to local Ollama model:', message);
 
-    const response = await fetch('http://192.168.1.106:5000/process_prompt', {
+    const response = await fetch('http://192.168.0.104:5000/process_prompt', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -44,10 +44,16 @@ const generateSingleResponse = async (message, progressCallback, format = 'text'
 
         try {
           const json = JSON.parse(line);
-          if (json.message && json.message.content) {
+          if (json.message && json.message.type == "text") {
             accumulatedResponse += json.message.content + '\n';
             progressCallback(accumulatedResponse);
           }
+          else if (json.message && json.message.type == 'image') {
+            accumulatedResponse += json.message.content + '\n';
+            progressCallback(accumulatedResponse);
+          }
+          
+          
         } catch (e) {
           console.error('Error parsing JSON from stream:', e);
         }
@@ -174,17 +180,40 @@ const Chat = () => {
     }
   };
 
-  // Render response content with proper formatting
+  // Render response content with proper formatting to handle both text and images
   const renderResponseContent = (content, type) => {
     if (!content) return null;
 
-    // Regular text formatting with line breaks
-    return content.split('\n').map((line, i) => (
-      <React.Fragment key={i}>
-        {line}
-        {i < content.split('\n').length - 1 && <br />}
-      </React.Fragment>
-    ));
+    // Regular text formatting with line breaks, but detect and render images
+    const lines = content.split('\n');
+    
+    return (
+      <div>
+        {lines.map((line, i) => {
+          // Check if the line looks like an image URL (data URI or ends with image extension)
+          const isImageUrl = line.startsWith('data:image') || 
+                            /\.(jpeg|jpg|gif|png|webp|svg)(\?.*)?$/i.test(line) ||
+                            line.includes('image');
+          
+          if (isImageUrl) {
+            // Render as an image
+            return (
+              <div key={i} className="">
+                <img src={line} alt="Generated content" className="chat-image" style={{width: '80%', margin: '20px 0px'}}/>
+              </div>
+            );
+          } else {
+            // Render as text
+            return (
+              <React.Fragment key={i}>
+                {line}
+                {i < lines.length - 1 && <br />}
+              </React.Fragment>
+            );
+          }
+        })}
+      </div>
+    );
   };
 
   // Handle quick prompts

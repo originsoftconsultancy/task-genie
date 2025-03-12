@@ -206,10 +206,14 @@
 
 .ai-message {
   align-self: flex-start;
-  background-color: #f3f4f6;
+  /* background-color: #f3f4f6; */
   color: #1f2937;
+  font-size: 0.9rem;
+  line-height: 2;
+  font-weight: 500;
+  font-family: 'Poppins', sans-serif;
   border-bottom-left-radius: 0.25rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  /* box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); */
 }
 
 .typing-indicator {
@@ -602,76 +606,116 @@
 }
 
 /* PDF Download Button */
-.pdf-download {
-  margin-top: 1rem;
+.file-container {
+  margin: 15px 0;
 }
 
 .pdf-download-button {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   background-color: #4f46e5;
   color: white;
   text-decoration: none;
-  padding: 0.625rem 1.25rem;
-  border-radius: 0.5rem;
+  padding: 10px 16px;
+  border-radius: 8px;
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 6px rgba(79, 70, 229, 0.25);
-}
-
-.pdf-download-button::before {
-  content: '';
-  display: inline-block;
-  width: 1.25rem;
-  height: 1.25rem;
-  margin-right: 0.5rem;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'%3E%3C/path%3E%3Cpolyline points='7 10 12 15 17 10'%3E%3C/polyline%3E%3Cline x1='12' y1='15' x2='12' y2='3'%3E%3C/line%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .pdf-download-button:hover {
   background-color: #4338ca;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
-  box-shadow: 0 6px 10px rgba(79, 70, 229, 0.3);
 }
 
-/* Table Formatting */
-.markdown-table {
+.pdf-icon {
+  margin-right: 10px;
+}
+
+/* Table Styling */
+.table-container {
+  margin: 20px 0;
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.message-table {
   width: 100%;
   border-collapse: collapse;
-  margin: 1rem 0;
-  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.table-header {
+.message-table th {
   background-color: #f3f4f6;
+  color: #111827;
   font-weight: 600;
   text-align: left;
-  display: flex;
+  padding: 12px 16px;
+  border-bottom: 2px solid #e5e7eb;
 }
 
-.table-row {
-  display: flex;
+.message-table td {
+  padding: 12px 16px;
   border-bottom: 1px solid #e5e7eb;
+  color: #4b5563;
 }
 
-.table-row:nth-child(even) {
+.message-table tr:nth-child(even) {
   background-color: #f9fafb;
 }
 
-.table-row:last-child {
+.message-table tr:last-child td {
   border-bottom: none;
 }
 
-.table-cell {
-  padding: 0.75rem;
-  flex: 1;
-  min-width: 0;
-  word-break: break-word;
+.message-table tr:hover {
+  background-color: #f3f4f6;
+}
+
+.image-container {
+  max-width: 100%;
+  margin: 10px 0;
+}
+
+.chat-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* File link styling */
+.file-link {
+  display: inline-block;
+  padding: 8px 15px;
+  background-color: #f3f4f6;
+  border-radius: 6px;
+  margin: 5px 0;
+}
+
+.file-link a {
+  color: #4f46e5;
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+}
+
+.file-link a:hover {
+  text-decoration: underline;
+}
+
+.file-link a::before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  /* background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'%3E%3C/path%3E%3Cpolyline points='14 2 14 8 20 8'%3E%3C/polyline%3E%3Cline x1='16' y1='13' x2='8' y2='13'%3E%3C/line%3E%3Cline x1='16' y1='17' x2='8' y2='17'%3E%3C/line%3E%3C/svg%3E"); */
 } 
