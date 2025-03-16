@@ -3,6 +3,8 @@ import re
 import os
 import jsonschema
 from pydantic import BaseModel
+import importlib
+import inspect
 import requests
 import logfire
 import asyncio
@@ -13,12 +15,25 @@ from pydantic_ai.models.openai import OpenAIModel
 
 load_dotenv()
 
+# Initialize the OpenAI model
 model = OpenAIModel(model_name=os.getenv("ALI_BABA_MODEL_NAME"),
                     base_url=os.getenv("ALI_BABA_BASE_URL"), api_key=os.getenv("ALI_BABA_API_KEY"))
 
+# Configure Logfire
 logfire.configure(send_to_logfire='if-token-present')
 
+# Get all .py files in the tools directory
+tools_dir = os.path.dirname(os.path.abspath(__file__)) + "/../tools"
+for filename in os.listdir(tools_dir):
+    if filename.endswith('.py') and filename != '__init__.py':
+        module_name = filename[:-3]  # Remove .py extension
+        module = importlib.import_module(f"tools.{module_name}")
+        # Import all from the module
+        for name, obj in inspect.getmembers(module):
+            if not name.startswith('_'):  # Skip private attributes
+                globals()[name] = obj
 
+# Define the agent for the LLM (Language Model) call
 agent = Agent(
     model=model,
     system_prompt="Extract the audience and campaign message from the given user prompt.",
@@ -27,12 +42,15 @@ agent = Agent(
     retries=3
 )
 
+# Define the dynamic prompt for the LLM (Language Model) call
+
 
 @agent.system_prompt
 def dynamic_prompt(ctx: RunContext[str]) -> str:
     return ctx.deps
 
 
+# Define the generic workflow executor class
 class WorkflowExecutor:
     def __init__(self, workflow: dict, initial_context: dict = None):
         """
@@ -56,7 +74,6 @@ class WorkflowExecutor:
 
         for step in self.workflow.get("workflow", {}).get("steps", []):
             yield from self.execute_step(step)
-            return
 
         print("Workflow execution completed.")
 
@@ -89,11 +106,20 @@ class WorkflowExecutor:
         tool_name = step["parameters"].get("tool")
         inputs = {key: self.context.get(
             key) for key in step["parameters"].get("input_keys", [])}
+
         print(f"Calling tool '{tool_name}' with inputs: {inputs}")
-        # Placeholder for actual tool call
-        outputs = {}  # Replace with actual tool outputs
-        for key, value in zip(step["parameters"].get("output_keys", []), outputs):
-            self.context[key] = value
+
+        tool = globals().get(tool_name)
+        outputs = tool(**inputs)
+        output_keys = step["parameters"].get("output_keys", [])
+
+        # Ensure outputs is iterable
+        if not isinstance(outputs, tuple):
+            outputs = (outputs,)
+
+        # Assign each output to the corresponding key in self.context
+        self.context.update(
+            {key: value for key, value in zip(output_keys, outputs)})
 
     def execute_api_call(self, step):
         """
@@ -129,7 +155,7 @@ class WorkflowExecutor:
         Executes an LLM (Language Model) call step.
         """
 
-        yield from self.yield_message("Extracting prompt and system_prompt")
+        yield from self.yield_message("Extracting prompt and system_prompt", "text")
 
         # Resolve the prompt from the context
         prompt = step["parameters"].get("prompt")
@@ -151,7 +177,7 @@ class WorkflowExecutor:
         print(
             f"Generating LLM response for prompt: '{prompt}' with system prompt: '{system_prompt}'")
 
-        yield from self.yield_message("Generating LLM response")
+        yield from self.yield_message("Generating LLM response", "text")
 
         with capture_run_messages() as messages:
             try:
@@ -266,6 +292,6 @@ class WorkflowExecutor:
             print(f"Workflow validation failed: {e.message}")
             raise
 
-    def yield_message(self, string):
-        message = {"message": {"content": string}}
+    def yield_message(self, content, type):
+        message = {"message": {"content": content}, "type": type}
         yield (json.dumps(message) + '\n').encode('utf-8')

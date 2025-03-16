@@ -17,7 +17,7 @@ const generateSingleResponse = async (message, progressCallback, format = 'text'
   try {
     console.log('Sending request to local Ollama model:', message);
 
-    const response = await fetch('http://192.168.0.104:5000/process_prompt', {
+    const response = await fetch('http://192.168.1.106:5000/process_prompt', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -29,7 +29,7 @@ const generateSingleResponse = async (message, progressCallback, format = 'text'
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    
+
     // Remove accumulated response since we're creating separate messages
     // let accumulatedResponse = '';
 
@@ -49,7 +49,7 @@ const generateSingleResponse = async (message, progressCallback, format = 'text'
           if (json.message && json.message.type) {
             const content = json.message.content;
             const type = json.message.type;
-            
+
             // Handle each message type as a separate message
             if (type === "text") {
               // Create a new message for text
@@ -58,7 +58,7 @@ const generateSingleResponse = async (message, progressCallback, format = 'text'
             else if (type === 'file') {
               // Extract filename from URL and create a file message
               const fileUrl = content;
-              const fileName = fileUrl.substring(fileUrl.lastIndexOf('/')+1);
+              const fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
               progressCallback(fileUrl, 'file', fileName);
             }
             else if (type === 'image') {
@@ -147,7 +147,7 @@ const Chat = () => {
         (content, type = 'text', meta = null) => {
           // Create a new message for each response
           const newResponseId = messageIdCounter + Math.random(); // Ensure unique ID
-          
+
           setMessages(prev => [...prev, {
             id: newResponseId,
             text: content,
@@ -156,7 +156,7 @@ const Chat = () => {
             sender: "ai",
             isTyping: false
           }]);
-          
+
           setMessageIdCounter(prev => prev + 1);
         },
         'text'
@@ -183,29 +183,29 @@ const Chat = () => {
     if (!content) return null;
 
     // Handle different types of content
-    switch(type) {
+    switch (type) {
       case 'image':
         return (
           <div className="image-container">
             <img src={content} alt="Generated image" className="chat-image" />
           </div>
         );
-        
+
       case 'file':
         // Extract filename from URL or use meta if available
-        const fileName = meta || content.substring(content.lastIndexOf('/')+1);
+        const fileName = meta || content.substring(content.lastIndexOf('/') + 1);
         return (
           <div className="file-container">
             <a href={content} target="_blank" rel="noopener noreferrer" className="pdf-button">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <polyline points="14 2 14 8 20 8" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <polyline points="14 2 14 8 20 8" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <span>Download {fileName}</span>
             </a>
           </div>
         );
-        
+
       case 'table':
         // Parse CSV content
         const rows = content.split('\n');
@@ -231,7 +231,7 @@ const Chat = () => {
             </table>
           </div>
         );
-        
+
       case 'text':
       default:
         // Regular text formatting with line breaks

@@ -60,7 +60,7 @@ def process_leads(leads, profession: str):
 
         email = None
 
-        if lead["snippet"] is not None:
+        if "snippet" in lead and lead["snippet"] is not None:
             email_match = re.search(
                 r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}", lead["snippet"])
             email = email_match.group(0) if email_match else None
@@ -72,14 +72,14 @@ def process_leads(leads, profession: str):
     return processed_leads
 
 
-def fetch_leads(profession: str):
+def fetch_leads(audience: str):
 
     sources = os.getenv("SEARCH_SOURCES").split(",")
     size = os.getenv("SEARCH_PAGE_SIZE")
     leads = []
 
     for website in sources:
-        query = f'site:{website} “{profession}” "Email:" OR “@gmail.com” OR “@yahoo.com” OR “@hotmail.com” OR “@outlook.com” OR “@aol.com” OR “@yahoo.com”'
+        query = f'site:{website} “{audience}” "Email:" OR “@gmail.com” OR “@yahoo.com” OR “@hotmail.com” OR “@outlook.com” OR “@aol.com” OR “@yahoo.com”'
         page = 1
         done = False
         while not done:
@@ -95,7 +95,7 @@ def fetch_leads(profession: str):
             else:
                 done = True
 
-    return process_leads(leads, profession)
+    return process_leads(leads, audience)
 
 
 def insert_leads(leads):

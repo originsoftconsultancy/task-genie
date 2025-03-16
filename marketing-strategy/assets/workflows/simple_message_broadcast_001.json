@@ -22,7 +22,7 @@
                 "step": "Get Leads",
                 "type": "tool_call",
                 "parameters": {
-                    "tool": "lead_search",
+                    "tool": "fetch_leads",
                     "input_keys": [
                         "audience"
                     ],
