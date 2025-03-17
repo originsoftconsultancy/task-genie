@@ -52,4 +52,4 @@ def broadcast_email(leads, subject, email_contents):
     """Send an email to multiple recipients."""
     for lead in leads:
         print(f"Email sent to " + lead["email"])
-        # send_email(lead["email"], subject, email_contents)
+        send_email(lead["email"], subject, email_contents)

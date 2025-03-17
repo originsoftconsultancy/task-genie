@@ -51,9 +51,9 @@ const generateSingleResponse = async (message, progressCallback, format = 'text'
             const type = json.message.type;
 
             // Handle each message type as a separate message
-            if (type === "text") {
+            if (type === "text" || type === "progress_text") {
               // Create a new message for text
-              progressCallback(content, 'text');
+              progressCallback(content, type);
             }
             else if (type === 'file') {
               // Extract filename from URL and create a file message
@@ -182,6 +182,8 @@ const Chat = () => {
   const renderResponseContent = (content, type, meta) => {
     if (!content) return null;
 
+    document.querySelectorAll('.progress-text-container').forEach(el => el.parentElement.remove());
+
     // Handle different types of content
     switch (type) {
       case 'image':
@@ -231,7 +233,24 @@ const Chat = () => {
             </table>
           </div>
         );
-
+      case 'progress_text':
+        return (
+          <table className="progress-text-container">
+            <tr>
+              <td className="progress-text-content">
+                {content.split('\n').map((line, i) => (
+                  <React.Fragment key={i}>
+                    {line}
+                    {i < content.split('\n').length - 1 && <br />}
+                  </React.Fragment>
+                ))}
+              </td>
+              <td className="progress-indicator">
+                <img src="/images/progress.gif" width="20" alt="Loading" style={{ width: 30, paddingLeft: 10, paddingTop: 10 }} className="progress-gif" />
+              </td>
+            </tr>
+          </table>
+        );
       case 'text':
       default:
         // Regular text formatting with line breaks

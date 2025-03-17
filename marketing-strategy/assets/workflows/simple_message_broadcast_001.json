@@ -6,6 +6,16 @@
         "description": "A workflow to send a broadcast message to an audience with campaign details.",
         "steps": [
             {
+                "step": "Yield Leads Title",
+                "type": "yield_message",
+                "parameters": {
+                    "yield": {
+                        "message": "Initiating Campaign ... ",
+                        "type": "progress_text"
+                    }
+                }
+            },
+            {
                 "step": "Extract Information",
                 "type": "llm_call",
                 "parameters": {
@@ -27,7 +37,17 @@
                 "type": "yield_message",
                 "parameters": {
                     "yield": {
-                        "message": "We have extracted the following leads for your audience",
+                        "message": "Extracting leads for your audience ... ",
+                        "type": "progress_text"
+                    }
+                }
+            },
+            {
+                "step": "Yield Leads Title",
+                "type": "yield_message",
+                "parameters": {
+                    "yield": {
+                        "message": "Fetched Leads for the selected audience:",
                         "type": "text"
                     }
                 }
@@ -50,6 +70,16 @@
                 }
             },
             {
+                "step": "Yield Leads Title",
+                "type": "yield_message",
+                "parameters": {
+                    "yield": {
+                        "message": "Crafting a personalized message for your audience and campaign ... ",
+                        "type": "progress_text"
+                    }
+                }
+            },
+            {
                 "step": "Write a Campaign Email",
                 "type": "llm_call",
                 "parameters": {
@@ -64,8 +94,18 @@
                         "subject"
                     ],
                     "yield": {
-                        "message": "Email subject: $context.subject, Email contents: $context.email_contents",
+                        "message": "Email subject: $context.subject",
                         "type": "text"
+                    }
+                }
+            },
+            {
+                "step": "Yield Leads Title",
+                "type": "yield_message",
+                "parameters": {
+                    "yield": {
+                        "message": "Sending email to the audience ... ",
+                        "type": "progress_text"
                     }
                 }
             },
