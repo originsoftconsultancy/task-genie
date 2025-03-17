@@ -35,13 +35,15 @@
                 "step": "Write a Campaign Email",
                 "type": "llm_call",
                 "parameters": {
-                    "prompt": "Please write a professional campaign email for the given audience and campaign message, including links and relevant details.",
+                    "system_prompt": "As an expert marketing and technical writer, please re-write a professional campaign email for the given audience and campaign_message (given in the user prompt). Please use html tags like <p>, <ul>, <li>, <h2> etc to format the email message. Please write an appealing subject line for the email.",
+                    "prompt": "audience: $context.audience, campaign_message: $context.campaign_message",
                     "input_keys": [
                         "audience",
                         "campaign_message"
                     ],
                     "output_keys": [
-                        "email_content"
+                        "email_contents",
+                        "subject"
                     ]
                 }
             },
@@ -49,10 +51,11 @@
                 "step": "Send Campaign Email",
                 "type": "tool_call",
                 "parameters": {
-                    "tool": "email_client",
+                    "tool": "broadcast_email",
                     "input_keys": [
                         "leads",
-                        "email_content"
+                        "subject",
+                        "email_contents"
                     ],
                     "output_keys": []
                 }

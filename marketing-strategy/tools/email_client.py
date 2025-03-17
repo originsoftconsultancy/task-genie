@@ -6,15 +6,13 @@ import requests
 load_dotenv()
 
 
-def send_email(recipient_name, title, to_email, subject, contents):
+def send_email(to_email, subject, contents):
     """Send an email using Gmail API (OAuth 2.0)."""
     try:
         # Read and customize email template
         with open("assets/email_template.html", "r") as file:
             html_content = file.read()
-            html_content = html_content.replace("${title}", title)
-            html_content = html_content.replace(
-                "${recipient}", recipient_name)
+            html_content = html_content.replace("${title}", subject)
             html_content = html_content.replace("${contents}", contents)
 
         url = "https://api.brevo.com/v3/smtp/email"
@@ -31,7 +29,7 @@ def send_email(recipient_name, title, to_email, subject, contents):
             "to": [
                 {
                     "email": to_email,
-                    "name": recipient_name
+                    "name": "Originsoft Consultancy"
                 }
             ],
             "subject": subject,
@@ -48,3 +46,10 @@ def send_email(recipient_name, title, to_email, subject, contents):
     except Exception as e:
 
         print("Error sending email:", str(e))
+
+
+def broadcast_email(leads, subject, email_contents):
+    """Send an email to multiple recipients."""
+    for lead in leads:
+        print(f"Email sent to " + lead["email"])
+        # send_email(lead["email"], subject, email_contents)

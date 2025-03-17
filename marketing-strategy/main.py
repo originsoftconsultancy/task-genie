@@ -28,11 +28,11 @@ def process_prompt():
                 yield item
             elif isinstance(item, str):
                 # Convert string to JSON message format and encode as bytes
-                message = {"message": {"content": item}, "type": "text"}
+                message = {"message": {"content": item, "type": "text"}}
                 yield (json.dumps(message) + '\n').encode('utf-8')
             else:
                 # For any other type, convert to string representation
-                message = {"message": {"content": str(item)}, "type": "text"}
+                message = {"message": {"content": str(item), "type": "text"}}
                 yield (json.dumps(message) + '\n').encode('utf-8')
 
         # message = {"message": {"content": "The status messages will now appear as separate blue boxes, distinct from the AI's actual response content, giving users better visibility into the processing steps happening on the backend.", "type": "text"}}

@@ -111,6 +111,7 @@ class WorkflowExecutor:
 
         tool = globals().get(tool_name)
         outputs = tool(**inputs)
+
         output_keys = step["parameters"].get("output_keys", [])
 
         # Ensure outputs is iterable
@@ -155,15 +156,20 @@ class WorkflowExecutor:
         Executes an LLM (Language Model) call step.
         """
 
-        yield from self.yield_message("Extracting prompt and system_prompt", "text")
-
         # Resolve the prompt from the context
         prompt = step["parameters"].get("prompt")
         system_prompt = step["parameters"].get("system_prompt")
 
-        # Prepare inputs for the LLM call
+        input_keys = step["parameters"].get(
+            "input_keys", [])
+
         output_keys = step["parameters"].get(
             "output_keys", [])
+
+        if (len(input_keys) > 0):
+            for key in input_keys:
+                prompt = prompt.replace(
+                    f"$context.{key}", str(self.context[key]))
 
         if (len(output_keys) > 0):
             system_prompt = f"""
@@ -172,6 +178,7 @@ class WorkflowExecutor:
                 Use the following exact key names for the outputs:
                 {output_keys}
                 Do not return any other text.
+                Do not include ```json``` or any other formatting.
             """
 
         print(
@@ -293,5 +300,5 @@ class WorkflowExecutor:
             raise
 
     def yield_message(self, content, type):
-        message = {"message": {"content": content}, "type": type}
+        message = {"message": {"content": content, "type": type}}
         yield (json.dumps(message) + '\n').encode('utf-8')
