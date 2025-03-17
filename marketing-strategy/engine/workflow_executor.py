@@ -83,19 +83,21 @@ class WorkflowExecutor:
         """
         step_type = step.get("type")
         if step_type == "tool_call":
-            self.execute_tool_call(step)
+            yield from self.execute_tool_call(step)
         elif step_type == "api_call":
-            self.execute_api_call(step)
+            yield from self.execute_api_call(step)
         elif step_type == "llm_call":
             yield from self.execute_llm_call(step)
         elif step_type == "conditional":
-            self.execute_conditional(step)
+            yield from self.execute_conditional(step)
         elif step_type == "for_loop":
-            self.execute_for_loop(step)
+            yield from self.execute_for_loop(step)
         elif step_type == "while_loop":
-            self.execute_while_loop(step)
+            yield from self.execute_while_loop(step)
+        elif step_type == "yield_message":
+            yield from self.yield_step_message(step)
         elif "parallel" in step:
-            self.execute_parallel(step["parallel"])
+            yield from self.execute_parallel(step["parallel"])
         else:
             print(f"Unknown step type: {step_type}")
 
@@ -121,6 +123,8 @@ class WorkflowExecutor:
         # Assign each output to the corresponding key in self.context
         self.context.update(
             {key: value for key, value in zip(output_keys, outputs)})
+
+        yield from self.yield_step_message(step)
 
     def execute_api_call(self, step):
         """
@@ -184,8 +188,6 @@ class WorkflowExecutor:
         print(
             f"Generating LLM response for prompt: '{prompt}' with system prompt: '{system_prompt}'")
 
-        yield from self.yield_message("Generating LLM response", "text")
-
         with capture_run_messages() as messages:
             try:
                 llm_response = asyncio.run(
@@ -200,6 +202,7 @@ class WorkflowExecutor:
                 else:
                     self.context["response"] = llm_response.data
 
+                yield from self.yield_step_message(step)
             except Exception as e:
                 print("Error:", e)
                 print("Messages:", messages)
@@ -298,6 +301,30 @@ class WorkflowExecutor:
         except jsonschema.exceptions.ValidationError as e:
             print(f"Workflow validation failed: {e.message}")
             raise
+
+    def yield_step_message(self, step):
+        yield_obj = step["parameters"].get("yield")
+
+        if yield_obj is not None and "message" in yield_obj:
+            message = yield_obj["message"]
+            type = yield_obj["type"]
+            output_keys = step["parameters"].get(
+                "output_keys", [])
+
+            if type == "text":
+                for key in output_keys:
+                    message = message.replace(
+                        f"$context.{key}", str(self.context[key]))
+            elif type == "table":
+                json = self.context[output_keys[0]]
+                csv = ""
+                for i, row in enumerate(json):
+                    if i == 0:
+                        csv += ",".join(row.keys()) + "\n"
+                    csv += ",".join(row.values()) + "\n"
+                message = csv
+
+            yield from self.yield_message(message, type)
 
     def yield_message(self, content, type):
         message = {"message": {"content": content, "type": type}}

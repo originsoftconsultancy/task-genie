@@ -72,7 +72,7 @@ def process_leads(leads, profession: str):
     return processed_leads
 
 
-def fetch_leads(audience: str):
+def fetch_leads1(audience: str):
     return [
         {"name": "Mudassar Majeed", "email": "mudassarm30@gmail.com",
          "profession": "doctor", "link": ""},
@@ -81,7 +81,7 @@ def fetch_leads(audience: str):
     ]
 
 
-def fetch_leads1(audience: str):
+def fetch_leads(audience: str):
 
     sources = os.getenv("SEARCH_SOURCES").split(",")
     size = os.getenv("SEARCH_PAGE_SIZE")

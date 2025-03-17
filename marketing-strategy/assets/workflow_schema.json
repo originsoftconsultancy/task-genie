@@ -34,6 +34,7 @@
                                             "tool_call",
                                             "api_call",
                                             "llm_call",
+                                            "yield_message",
                                             "conditional",
                                             "for_loop",
                                             "while_loop"
@@ -83,6 +84,10 @@
                                                     "type": "string"
                                                 },
                                                 "description": "Output variables"
+                                            },
+                                            "yield": {
+                                                "type": "object",
+                                                "description": "Output yielded to the frontend while workflow runs"
                                             },
                                             "payload": {
                                                 "type": "object",

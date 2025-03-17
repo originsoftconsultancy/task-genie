@@ -15,7 +15,21 @@
                     "output_keys": [
                         "audience",
                         "campaign_message"
-                    ]
+                    ],
+                    "yield": {
+                        "message": "Extracted audience as '$context.audience' and campaign message as '$context.campaign_message'.",
+                        "type": "text"
+                    }
+                }
+            },
+            {
+                "step": "Yield Leads Title",
+                "type": "yield_message",
+                "parameters": {
+                    "yield": {
+                        "message": "We have extracted the following leads for your audience",
+                        "type": "text"
+                    }
                 }
             },
             {
@@ -28,14 +42,18 @@
                     ],
                     "output_keys": [
                         "leads"
-                    ]
+                    ],
+                    "yield": {
+                        "message": "$context.leads",
+                        "type": "table"
+                    }
                 }
             },
             {
                 "step": "Write a Campaign Email",
                 "type": "llm_call",
                 "parameters": {
-                    "system_prompt": "As an expert marketing and technical writer, please re-write a professional campaign email for the given audience and campaign_message (given in the user prompt). Please use html tags like <p>, <ul>, <li>, <h2> etc to format the email message. Please write an appealing subject line for the email.",
+                    "system_prompt": "As an expert marketing and technical writer, please re-write a professional campaign email for the given audience and campaign_message (given in the user prompt). Please use html tags like <p>, <ul>, <li>, <h2> etc to format the email message. Please write an appealing subject line for the email. In Salutation, just write 'Dear Sir/Madam'.",
                     "prompt": "audience: $context.audience, campaign_message: $context.campaign_message",
                     "input_keys": [
                         "audience",
@@ -44,7 +62,11 @@
                     "output_keys": [
                         "email_contents",
                         "subject"
-                    ]
+                    ],
+                    "yield": {
+                        "message": "Email subject: $context.subject, Email contents: $context.email_contents",
+                        "type": "text"
+                    }
                 }
             },
             {
@@ -57,7 +79,11 @@
                         "subject",
                         "email_contents"
                     ],
-                    "output_keys": []
+                    "output_keys": [],
+                    "yield": {
+                        "message": "Email sent to the audience.",
+                        "type": "text"
+                    }
                 }
             }
         ]
