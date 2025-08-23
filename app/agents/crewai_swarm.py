@@ -6,7 +6,7 @@ import litellm
 
 # Set up the Ali Baba Model
 llm = LLM(
-    model="gemini/gemini-1.5-pro-latest",
+    model="gemini/gemini-2.0-flash",
     temperature=0.7,
     api_key=os.getenv("GEMINI_API_KEY"),
     max_rpm=2,

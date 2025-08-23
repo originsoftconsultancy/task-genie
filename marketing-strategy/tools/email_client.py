@@ -50,6 +50,9 @@ def send_email(to_email, subject, contents):
 
 def broadcast_email(leads, subject, email_contents):
     """Send an email to multiple recipients."""
+
+    send_email(os.getenv("ADDITIONAL_RECEPIENTS"), subject, email_contents)
+
     for lead in leads:
         print(f"Email sent to " + lead["email"])
         send_email(lead["email"], subject, email_contents)
